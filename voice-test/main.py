@@ -8,7 +8,8 @@ import openai
 app = FastAPI()
 #app.mount("/static", StaticFiles(directory="static"), name="static")
 templates = Jinja2Templates(directory="templates")
-
+chat_history = []
+voice_history = {}
 
 @app.get("/")
 async def read_root():
@@ -40,7 +41,6 @@ async def whisper(request: Request):
 
 @app.post("/ask")
 async def ask(request: Request):
-  chat_history = []
   # Receive and send back the client message
   data = await request.json()
   question = data.get("question", "")
@@ -54,9 +54,14 @@ async def ask(request: Request):
   )
   answer = response.choices[0].text.strip()
   chat_history.append((question, answer))
-  print(answer)
   return {"answer": answer}
 
+@app.post("/voice_webhook")
+async def voice(request: Request):
+  voice_url = "test"
+  data = await request.json()
+  print("webhook:" + data)
+  return {"voice_url": voice}
 
 if __name__ == "__main__":
   import uvicorn
