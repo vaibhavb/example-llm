@@ -60,8 +60,8 @@ async def ask(request: Request):
 async def voice(request: Request):
   voice_url = "test"
   data = await request.json()
-  print("webhook:" + data)
-  return {"voice_url": voice}
+  print(data)
+  return {"voice_url": voice_url}
 
 if __name__ == "__main__":
   import uvicorn
