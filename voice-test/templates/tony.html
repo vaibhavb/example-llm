@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Chat Your Data</title>
+    <link href="https://unpkg.com/tailwindcss@^2/dist/tailwind.min.css" rel="stylesheet">
+    <style>
+        .chat-body {
+            width: 550px;
+            margin: 50px auto;
+        }
+        .card-body {
+            background-color: #333;
+            color: #fff;
+            border-radius: 10px;
+        }
+        .server-message {
+            background-color: #444;
+            padding: 10px;
+            margin: 10px;
+            border-radius: 10px;
+        }
+        .client-message {
+            background-color: #555;
+            padding: 10px;
+            margin: 10px;
+            border-radius: 10px;
+        }
+        .form-inline {
+            display: flex;
+            justify-content: space-between;
+        }
+        .form-control {
+            width: 80%;
+            background-color: #333;
+            color: #fff;
+            border: none;
+            border-radius: 5px;
+            padding: 10px;
+            margin-right: 10px;
+        }
+        #sendBtn, #speakBtn {
+            background-color: #4C4CFF;
+            color: #fff;
+            border: none;
+            border-radius: 5px;
+            padding: 10px 20px;
+            margin-right: 10px;
+        }
+        .form-message {
+          margin-top: 10px;
+        }
+    </style>
+</head>
+<body class="bg-black">
+    <div class="chat-body card">
+        <div class="card-body p-5">
+            <h4 class="card-title text-center text-xl font-medium"> Chat With Tony Robbins</h4>
+            <p class="card-text text-center text-sm" id="header"> Ask a question </p>
+            <hr class="border-gray-500 mb-5" style="margin-top: 20px;">
+            <div id="messages" class="overflow-auto" style="max-height: 500px;">
+            </div>
+            <form class="form-inline mt-5" id="chat-form">
+                <input type="text" class="form-control" placeholder="Speak your question" id="messageText">
+                <button id="speakBtn" type="submit" class="btn btn-primary">Speak</button>
+                <button id="sendBtn" type="submit" class="btn btn-primary">Send</button>
+            </form>
+        </div>
+    </div>
+    <script>
+        // Get references to the HTML elements
+        const speakButton = document.getElementById('speakBtn');
+        const sendButton = document.getElementById('sendBtn');
+        const textarea = document.getElementById('messageText');
+        var messages = document.getElementById('messages');
+
+        // Create a SpeechRecognition object
+        const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+        //const recognition = new SpeechRecognition();
+        
+        // Set the recognition properties
+        const recognition = new webkitSpeechRecognition();
+        recognition.continuous = false;
+        recognition.interimResults = false;
+        recognition.lang = "en-US";
+        
+        // Handle the "Speak" button click event
+        speakButton.addEventListener('click', () => {
+            // Prevent the form submission
+            event.preventDefault();
+            // Start the recognition
+            console.log("Speak Button Clicked!");
+            console.log(recognition);
+            recognition.start();
+            speakButton.innerText = "Listening..."
+        });
+
+        // Handle the recognition result event
+        recognition.onresult = (event) => {
+            console.log(event.results[0][0]);
+            // Get the recognized text
+            const text = event.results[0][0].transcript;
+
+            // Set the text to the textarea
+            textarea.value = text;
+            speakButton.innerText = "Speak"
+        };
+
+        function addClient(question) {
+            var div = document.createElement('div');
+            div.className = 'client-message';
+            var p = document.createElement('p');
+            p.innerHTML = "<strong>" + "You: " + "</strong>";
+            p.innerHTML += question;
+            div.appendChild(p);
+            return div;
+        }
+
+        function addServer(answer){
+            var div = document.createElement('div');
+            div.className = 'server-message';
+            var p = document.createElement('p');
+            p.innerHTML = "<strong>" + "Chatbot: " + "</strong>";
+            p.innerHTML += answer;
+            div.appendChild(p);
+            return div;
+        }
+
+        sendButton.addEventListener('click', () =>{
+            // Prevent the form submission
+            event.preventDefault();
+            message = textarea.value;
+            answer = "";
+            sendButton.innerText = "Sending.."
+
+            fetch("/ask", {
+                method: "POST",
+                body: JSON.stringify({question: message}),
+                headers: {"Context-Type": "application/json"}
+            })
+            .then((response) => response.json())
+            .then((data) => {
+                console.log(data);
+                textarea.value = "";
+                sendButton.innerText = "Send";     
+                messages.appendChild(addClient(message));
+                messages.appendChild(addServer(data.answer));
+                // Scroll to the bottom of the chat
+                messages.scrollTop = messages.scrollHeight;
+                answer = data.answer;
+                return(data);
+            })
+            .then((data) => {
+                const apiKey = "w2ePrQv3arTGrkGCDsvpaAtt";
+                const textToSynthesize = data.answer;
+                const voiceId = "48d7ed16";
+                const callback_url = "https://webhook.site/9f36b95e-c30d-489a-a52a-6e2aaa4b8987"
+                fetch('https://app.resemble.ai/api/v2/projects/6de6fd98/clips', {
+                        method: 'POST',
+                        headers: {
+                            'Authorization': 'Token token=w2ePrQv3arTGrkGCDsvpaAtt',
+                            'Content-Type': 'application/json'
+                        },
+                        // body: '{"callback_uri": "https://webhook.site/9f36b95e-c30d-489a-a52a-6e2aaa4b8987", "body": "This audio was yesterday synthesized", "voice_uuid": "48d7ed16", "is_public": true, "is_archived": false}',
+                        body: JSON.stringify({
+                            'callback_uri': callback_url,
+                            'body': textToSynthesize,
+                            'voice_uuid': voiceId,
+                            'is_public': false,
+                            'is_archived': false
+                        })
+                    })
+                .then((response) => response.json())
+                .then((data) => {
+                    // Play the generated audio
+                    console.log(data);
+                    //const audio = new Audio(data.presignedUrl);
+                    //audio.play();
+                })
+                .catch((error) => {
+                    console.error("Error generating audio:", error);
+                });
+            })
+        })
+    </script>
+</body>
+</html>

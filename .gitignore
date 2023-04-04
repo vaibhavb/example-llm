@@ -1,0 +1,6 @@
+data/
+ext/
+lchain/
+keys.sh
+voice-test/.env.local
+.DS_Store

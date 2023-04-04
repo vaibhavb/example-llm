@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <title>Browser Voice Input Example</title>
+  </head>
+  <body>
+    <h1>Browser Voice Input Example</h1>
+    <form>
+      <button type="button" id="start-btn">Start</button>
+    </form>
+    <div>
+      <p>Transcription:</p>
+      <p id="transcription"></p>
+    </div>
+    <script>
+      const startBtn = document.getElementById("start-btn");
+      const transcription = document.getElementById("transcription");
+
+      const recognition = new webkitSpeechRecognition();
+      recognition.continuous = false;
+      recognition.interimResults = false;
+      recognition.lang = "en-US";
+
+      startBtn.addEventListener("click", () => {
+        recognition.start();
+        startBtn.innerText = "Listening...";
+        console.log(recognition);
+      });
+
+      recognition.onresult = (event) => {
+        const { transcript } = event.results[0][0];
+        console.log(transcript);
+        transcription.innerText = transcript;
+        fetch("/whisper", {
+          method: "POST",
+          body: JSON.stringify({ text: transcript }),
+          headers: { "Content-Type": "application/json" },
+        })
+          .then((response) => response.json())
+          .then((data) => {
+            console.log(data);
+            recognition.stop();
+            startBtn.innerText = "Start";
+            transcription.innerText += data.text;
+          })
+          .catch((error) => {
+            console.error(error);
+            transcription.innerText = "Error: " + error.message;
+          });
+      };
+    </script>
+  </body>
+</html>
