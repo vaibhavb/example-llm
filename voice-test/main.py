@@ -61,9 +61,10 @@ async def ask(request: Request):
 
 @app.post("/voice_webhook")
 async def voice(request: dict):
-  print(request)
-  voice_webhook_requests[request.id] = request;
-  return {"id": request.id, "message": "successful"}
+  data = await request.json()
+  print(data)
+  voice_webhook_requests[data.get("id")] = data.get("url");
+  return {"id": data.get("id"), "message": "successful"}
 
 @app.get("/voice_webhook/{request_id}")
 def get_voice_webhook_request(request_id: str):
