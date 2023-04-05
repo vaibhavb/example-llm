@@ -193,6 +193,7 @@
 
         function playVoice(){
             const id = playButton.dataset.id;
+            console.log(`playvoice() -- ${id}`)
             fetch(`/voice_webhook/${id}`, {
                         method: 'GET',
                     })
