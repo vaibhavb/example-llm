@@ -174,8 +174,21 @@
                 .then((data) => {
                     // Play the generated audio
                     console.log(data);
-                    //const audio = new Audio(data.presignedUrl);
-                    //audio.play();
+                    id = data.item.uuid;
+                    fetch('/voice_webhook/${id}', {
+                        method: 'GET',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        }
+                    })
+                    .then(response = response.jscon())
+                    .then ((data) => {
+                        const audio = new Audio(data.voiceUrl);
+                        audio.play();
+                    })
+                    .catch((error) =>{
+                        console.error("play error: ", error)
+                    });
                 })
                 .catch((error) => {
                     console.error("Error generating audio:", error);

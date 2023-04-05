@@ -1,4 +1,6 @@
-from fastapi import FastAPI, Request, WebSocket, WebSocketDisconnect
+from fastapi import FastAPI, Request, WebSocket, WebSocketDisconnect,HTTPException
+from pydantic import BaseModel
+import uuid
 from fastapi.templating import Jinja2Templates
 from fastapi.responses import HTMLResponse
 from fastapi.staticfiles import StaticFiles
@@ -6,10 +8,17 @@ import logging
 import openai
 
 app = FastAPI()
-#app.mount("/static", StaticFiles(directory="static"), name="static")
+
 templates = Jinja2Templates(directory="templates")
+
+# A dictionary to store webhook requests
+voice_webhook_requests = {}
+
+# Create a Pydantic model for the webhook request
+class WebhookRequest(BaseModel):
+    payload: dict
+
 chat_history = []
-voice_history = {}
 
 @app.get("/")
 async def read_root():
@@ -57,11 +66,18 @@ async def ask(request: Request):
   return {"answer": answer}
 
 @app.post("/voice_webhook")
-async def voice(request: Request):
-  voice_url = "test"
-  data = await request.json()
-  print(data)
-  return {"voice_url": voice_url}
+async def voice(request: WebhookRequest):
+  voice_webhook_requests[request.id] = request;
+  print(request)
+  return {"id": request.id, "message": "successful"}
+
+@app.get("/voice_webhook/{request_id}")
+def get_voice_webhook_request(request_id: str):
+    print(request_id)
+    if request_id in voice_webhook_requests:
+        return voice_webhook_requests[request_id]
+    else:
+        raise HTTPException(status_code=404, detail="Request ID not found")
 
 if __name__ == "__main__":
   import uvicorn
