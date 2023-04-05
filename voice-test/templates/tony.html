@@ -39,13 +39,16 @@
             padding: 10px;
             margin-right: 10px;
         }
-        #sendBtn, #speakBtn {
+        #sendBtn, #speakBtn, #playButton {
             background-color: #4C4CFF;
             color: #fff;
             border: none;
             border-radius: 5px;
             padding: 10px 20px;
             margin-right: 10px;
+        }
+        #audioPlayer {
+            display: inline-block;
         }
         .form-message {
           margin-top: 10px;
@@ -59,6 +62,10 @@
             <p class="card-text text-center text-sm" id="header"> Ask a question </p>
             <hr class="border-gray-500 mb-5" style="margin-top: 20px;">
             <div id="messages" class="overflow-auto" style="max-height: 500px;">
+            </div>
+            <div id="audioplayer">
+                <button id="playButton" class="btn btn-primary">Play</button>
+                <audio id="audioPlayer" controls></audio>
             </div>
             <form class="form-inline mt-5" id="chat-form">
                 <input type="text" class="form-control" placeholder="Speak your question" id="messageText">
@@ -182,8 +189,13 @@
                         }
                     })
                     .then ((data) => {
-                        const audio = new Audio(data);
-                        audio.play();
+                        var player = document.getElementById("audioplayerControl")
+                        const playButton = document.getElementById("playButton");
+                        const audioPlayer = document.getElementById("audioPlayer");
+                        audioPlayer.src = data;
+                        playButton.addEventListener("click", async () => {
+                            audioPlayer.play();
+                        })
                     })
                     .catch((error) =>{
                         console.error("play error: ", error)
