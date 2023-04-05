@@ -1,11 +1,9 @@
 from fastapi import FastAPI, Request, WebSocket, WebSocketDisconnect,HTTPException
-from pydantic import BaseModel
-import uuid
 from fastapi.templating import Jinja2Templates
 from fastapi.responses import HTMLResponse
 from fastapi.staticfiles import StaticFiles
 import logging
-import openai
+
 
 app = FastAPI()
 
@@ -13,10 +11,6 @@ templates = Jinja2Templates(directory="templates")
 
 # A dictionary to store webhook requests
 voice_webhook_requests = {}
-
-# Create a Pydantic model for the webhook request
-class WebhookRequest(BaseModel):
-    payload: dict
 
 chat_history = []
 
@@ -66,7 +60,7 @@ async def ask(request: Request):
   return {"answer": answer}
 
 @app.post("/voice_webhook")
-async def voice(request: WebhookRequest):
+async def voice(request: dict):
   voice_webhook_requests[request.id] = request;
   print(request)
   return {"id": request.id, "message": "successful"}
