@@ -63,10 +63,10 @@
             <hr class="border-gray-500 mb-5" style="margin-top: 20px;">
             <div id="messages" class="overflow-auto" style="max-height: 500px;">
             </div>
-            <div id="audioplayer">
+            <form class="form-inline mt-5" id="audioplayer">
                 <button id="playButton" class="btn btn-primary" type="submit">Get Voice</button>
                 <audio id="audioPlayer" controls></audio>
-            </div>
+            </form>
             <form class="form-inline mt-5" id="chat-form">
                 <input type="text" class="form-control" placeholder="Speak your question" id="messageText">
                 <button id="speakBtn" type="submit" class="btn btn-primary">Speak</button>
@@ -183,7 +183,6 @@
                     console.log(data);
                     const playButton = document.getElementById("playButton");
                     playButton.dataset.id = data.item.uuid;
-                    playButton.addEventListener("click", playVoice())
                 })
                 .catch((error) => {
                     console.error("Error generating audio:", error);
@@ -191,6 +190,8 @@
             })
         })
 
+        playButton.addEventListener('click', () => playVoice())
+        
         function playVoice(){
             const id = playButton.dataset.id;
             console.log(`playvoice() -- ${id}`)
