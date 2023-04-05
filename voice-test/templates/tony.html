@@ -64,7 +64,7 @@
             <div id="messages" class="overflow-auto" style="max-height: 500px;">
             </div>
             <div id="audioplayer">
-                <button id="playButton" class="btn btn-primary">Play</button>
+                <button id="playButton" class="btn btn-primary">Get Voice</button>
                 <audio id="audioPlayer" controls></audio>
             </div>
             <form class="form-inline mt-5" id="chat-form">
@@ -181,31 +181,31 @@
                 .then((data) => {
                     // Play the generated audio
                     console.log(data);
-                    id = data.item.uuid;
-                    fetch(`/voice_webhook/${id}`, {
-                        method: 'GET',
-                        headers: {
-                            'Content-Type': 'application/json'
-                        }
-                    })
-                    .then ((data) => {
-                        var player = document.getElementById("audioplayerControl")
-                        const playButton = document.getElementById("playButton");
-                        const audioPlayer = document.getElementById("audioPlayer");
-                        audioPlayer.src = data;
-                        playButton.addEventListener("click", async () => {
-                            audioPlayer.play();
-                        })
-                    })
-                    .catch((error) =>{
-                        console.error("play error: ", error)
-                    });
+                    const playButton = document.getElementById("playButton");
+                    playButton.dataset.id = data.item.uuid;
+                    playButton.addEventListener("click", playVoice())
                 })
                 .catch((error) => {
                     console.error("Error generating audio:", error);
                 });
             })
         })
+
+        function playVoice(){
+            const id = playButton.dataset.id;
+            fetch(`/voice_webhook/${id}`, {
+                        method: 'GET',
+                    })
+                    .then ((data) => {
+                        console.log(data)
+                        var player = document.getElementById("audioplayerControl")
+                        const audioPlayer = document.getElementById("audioPlayer");
+                        audioPlayer.src = data;
+                    })
+                    .catch((error) =>{
+                        console.error("play error: ", error)
+                    });
+        }
     </script>
 </body>
 </html>
