@@ -191,8 +191,10 @@
         })
 
         playButton.addEventListener('click', () => playVoice())
-        
+
         function playVoice(){
+            // Prevent the form submission
+            event.preventDefault();
             const id = playButton.dataset.id;
             console.log(`playvoice() -- ${id}`)
             fetch(`/voice_webhook/${id}`, {
