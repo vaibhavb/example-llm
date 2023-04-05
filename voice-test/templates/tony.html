@@ -181,9 +181,8 @@
                             'Content-Type': 'application/json'
                         }
                     })
-                    .then(response = response.json())
                     .then ((data) => {
-                        const audio = new Audio(data.voiceUrl);
+                        const audio = new Audio(data);
                         audio.play();
                     })
                     .catch((error) =>{
