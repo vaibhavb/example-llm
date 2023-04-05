@@ -61,8 +61,8 @@ async def ask(request: Request):
 
 @app.post("/voice_webhook")
 async def voice(request: dict):
-  voice_webhook_requests[request.id] = request;
   print(request)
+  voice_webhook_requests[request.id] = request;
   return {"id": request.id, "message": "successful"}
 
 @app.get("/voice_webhook/{request_id}")
