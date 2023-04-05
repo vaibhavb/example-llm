@@ -175,13 +175,13 @@
                     // Play the generated audio
                     console.log(data);
                     id = data.item.uuid;
-                    fetch('/voice_webhook/${id}', {
+                    fetch(`/voice_webhook/${id}`, {
                         method: 'GET',
                         headers: {
                             'Content-Type': 'application/json'
                         }
                     })
-                    .then(response = response.jscon())
+                    .then(response = response.json())
                     .then ((data) => {
                         const audio = new Audio(data.voiceUrl);
                         audio.play();
